@@ -1,4 +1,4 @@
-#include "simpleCSVsorter.h"
+#include "scannerCSVsorter.h"
 
 // implementation
 char get_type(char* val) {
@@ -136,6 +136,28 @@ cell* get_cells(char** pre_cell, char data_type, int index, int len) {
 		}
 	}
 	return cells;
+}
+
+void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int *size) {
+	DIR *dir = opendir(dts);
+	if(dir != NULL) {
+		struct dirent *de;
+		while((de = readdir(dir)) != NULL) {
+			*size += 1;
+			if(!(de->d_type & DT_DIR)) {
+				recursive_scan_and_sort("", header, od, pids, size);
+			}
+			else if("is csv file") {
+				pids[*size - 1] = fork();
+				if(pids[*size - 1] == 0) {
+					//sort file
+					return;
+				}
+			}
+
+		}
+	}
+	closedir(dir);
 }
 /*
     char sort_type = get_type(header_to_sort);

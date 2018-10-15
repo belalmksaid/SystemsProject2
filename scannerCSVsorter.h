@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <dirent.h>
 
 
 // define data types
@@ -71,7 +72,7 @@ datarow * sort(datarow * data, int ndata, int index);
 datarow * mergesort(datarow * data, int index, int nrows );
 
 // recursive scanner sort
-recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int* size);
+void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int* size);
 
 
 #endif
