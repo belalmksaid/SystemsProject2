@@ -150,7 +150,7 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 			else if("is csv file") {
 				pids[*size - 1] = fork();
 				if(pids[*size - 1] == 0) {
-					//sort file
+					sort_file("", header, od);
 					return;
 				}
 			}
