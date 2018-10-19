@@ -218,11 +218,12 @@ int main(int argc, char* argv[]) {
 			i++;
 			directory_to_search = argv[i];
 		}
-        else if(strcmp(argv[i], "-c") == 0) {
+        else if(strcmp(argv[i], "-o") == 0) {
 			i++;
 			output_directory = argv[i];
 		}  
 	}
+	printf("Finished Reading\n");
     pid_t pids[256];
     int size = 0;
     recursive_scan_and_sort(directory_to_search, header_to_sort, output_directory, pids, &size);
