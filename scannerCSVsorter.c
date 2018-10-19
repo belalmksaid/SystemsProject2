@@ -160,7 +160,7 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 				pids[*size - 1] = fork();
 				if(pids[*size - 1] == 0) {
 					sort_file(new_name, header, od);
-					return;
+					exit(0);
 				}
 			}
 
