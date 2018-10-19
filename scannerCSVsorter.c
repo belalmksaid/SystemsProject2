@@ -276,6 +276,10 @@ int main(int argc, char* argv[]) {
 			output_directory = argv[i];
 		}  
 	}
+	if(header_to_sort == NULL) {
+		perror("No header supplied as input.");
+		return 0;
+	}
     pid_t pids[256];
     int size = 0;
     recursive_scan_and_sort(directory_to_search, header_to_sort, output_directory, pids, &size);
