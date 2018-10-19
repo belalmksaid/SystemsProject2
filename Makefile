@@ -1,7 +1,7 @@
-all: simpleCSVsort
+all: scannerCSVsort
 
-simpleCSVsort: mergesort.c
-	gcc -g -Wall -Werror -fsanitize=address mergesort.c simpleCSVsorter.c -o simpleCSVsorter 
+scannerCSVsort: mergesort.c
+	gcc -g -Wall -Werror -fsanitize=address mergesort.c scannerCSVsorter.c -o scannerCSVsorter 
 
 test: stringproc.c data_types.c test.c
 	gcc -g -Wall -Werror -fsanitize=address stringproc.c data_types.c test.c -o test.o

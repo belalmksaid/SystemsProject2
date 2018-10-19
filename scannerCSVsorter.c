@@ -138,19 +138,29 @@ cell* get_cells(char** pre_cell, char data_type, int index, int len) {
 	return cells;
 }
 
+int sort_file(char* file_path, char* header, char* od) {
+	printf("%s\n", file_path);
+	return 0;
+}
+
 void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int *size) {
 	DIR *dir = opendir(dts);
 	if(dir != NULL) {
 		struct dirent *de;
+		de = readdir(dir); // skip .
+		de = readdir(dir); // skip ..
 		while((de = readdir(dir)) != NULL) {
 			*size += 1;
+			int name_len = str_len(de->d_name);
+			char* new_name = (char*)malloc(str_len(dts) + name_len + 2);
+			sprintf("%s/%s", dts, de->d_name);
 			if(!(de->d_type & DT_DIR)) {
-				recursive_scan_and_sort("", header, od, pids, size);
+				recursive_scan_and_sort(new_name, header, od, pids, size);
 			}
-			else if("is csv file") {
+			else if(1){
 				pids[*size - 1] = fork();
 				if(pids[*size - 1] == 0) {
-					sort_file("", header, od);
+					sort_file(new_name, header, od);
 					return;
 				}
 			}
