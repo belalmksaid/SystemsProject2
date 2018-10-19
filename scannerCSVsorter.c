@@ -231,7 +231,7 @@ int main(int argc, char* argv[]) {
 			printf("%d, ", pids[i]);
 		}
 		else {
-			printf("%d", pid[i]);
+			printf("%d", pids[i]);
 		}
 	}
 	printf("\nTotal number of processes: %d\n", size);
