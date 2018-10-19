@@ -10,23 +10,23 @@ char get_type(char* val) {
 	return FLOAT;
 }
 
-void print_row(datarow* row) {
+void print_row(datarow* row, File* stream) {
 	int i = 0;
 	for(i = 0; i < row->size; i++) {
-		printf("%s", row->cells[i].original);
-		if(i < row->size - 1) printf(",");
+		fprintf(stream, "%s", row->cells[i].original);
+		if(i < row->size - 1) fprintf(stream, ",");
 	}
 
-	printf("\n");
+	fprintf(stream, "\n");
 }
 
-void print_header(char** vals, int n) {
+void print_header(char** vals, int n, File* stream) {
 	int i = 0;
 	for(i = 0; i < n; i++) {
-		printf("%s", vals[i]);
-		if(i < n - 1) printf(",");
+		fprintf(stream, "%s", vals[i]);
+		if(i < n - 1) fprintf(stream, ",");
 	}
-	printf("\n");
+	fprintf(stream, "\n");
 }
 
 datarow create_datarow(cell* cells, int col_count) {
@@ -138,7 +138,54 @@ cell* get_cells(char** pre_cell, char data_type, int index, int len) {
 	return cells;
 }
 
-int sort_file(char* file_path, char* header, char* od) {
+int sort_file(char* file_path, char* directory_path, char* filename, char* header_to_sort, char* od) {
+	FILE* fp = fopen(file_path, "r");
+	char sort_type = get_type(header_to_sort);
+	char buff[BUFSIZ];
+	char *read = fgets(buff, sizeof buff, fp);
+	int no_of_cols = 0;
+	char** headers = split_by_comma(buff, &no_of_cols);
+	int cell_index = -1;
+	for(i = 0; i < no_of_cols; i++) {
+		if(!strcmp(headers[i], header_to_sort)) {
+			cell_index = i;
+			break;
+		}
+	}
+	if(cell_index != -1) {
+		table* main_table = create_table();
+		main_table->header = headers;
+		read = fgets(buff, sizeof buff, stdin);
+		while(read != NULL) {
+			int nc = 0;
+			char** split_line = split_by_comma(buff, &nc);
+			if(nc != no_of_cols) {
+				exit(0);
+			}
+			cell* cells = get_cells(split_line, sort_type, cell_index, nc);
+			datarow row = create_datarow(cells, nc);
+			append(main_table, &row); 
+			read = fgets(buff, sizeof buff, stdin);
+		}
+		datarow* sorted = mergesort(main_table->rows, cell_index, main_table->size);
+		char* new_name = (char*)malloc(strlen(file_path) + strlen(header_to_sort) + 10);
+		sprintf(new_name, "%s/%s-sorted-%s", dts, header_to_sort, filename);
+		File* fout;
+		if((fout=fopen(new_name, "w"))==NULL) {
+    		perror("Cannot open file.\n");
+  		}
+		print_header(headers, no_of_cols, fout);
+		int j;
+		for(j = 0; j < main_table->size; ++j){
+			print_row(&(sorted[j]), fout);
+		}
+		fclose(fout);
+	}
+	else {
+		perror("Column %s does not exist in file %s", header_to_sort, file_path);
+		exit(0);
+	}
+	fclose(fp);
 	return 0;
 }
 
@@ -150,17 +197,25 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 		de = readdir(dir); // skip ..
 		while((de = readdir(dir)) != NULL) {
 			int name_len = strlen(de->d_name);
-			char* new_name = (char*)malloc(strlen(dts) + name_len + 2);
+			int dir_len = strlen(dts);
+			char* new_name = (char*)malloc(dir_len + name_len + 2);
+			if(dts[dir_len - 1] == '/') {
+				dts[dir_len - 1] == '\0';
+			}
 			sprintf(new_name, "%s/%s", dts, de->d_name);
 			if(de->d_type & DT_DIR) {
 				recursive_scan_and_sort(new_name, header, od, pids, size);
 			}
-			else if(1){
+			else if(
+				name_len >= 4 && 
+				de->d_name[name_len - 1] == 'v' && 
+				de->d_name[name_len - 2] == 's' && 
+				de->d_name[name_len - 3] == 'c' &&
+				de->d_name[name_len - 4] == '.'){
 				*size += 1;
 				pids[*size - 1] = fork();
 				if(pids[*size - 1] == 0) {
-					sort_file(new_name, header, od);
-					exit(0);
+					sort_file(new_name, dts, de->d_name, header, od);
 				}
 			}
 

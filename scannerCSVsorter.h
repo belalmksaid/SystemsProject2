@@ -57,10 +57,10 @@ char** split_by_comma(char* line, int* len);
 
 cell* get_cells(char** pre_cell, char data_type, int index, int len);
 
-void print_header(char** vals, int n);
+void print_header(char** vals, int n, File* stream);
 
 // post processing
-void print_row(datarow* row);
+void print_row(datarow* row, File* stream);
 
 char get_type(char* val);
 
@@ -77,7 +77,7 @@ datarow * mergesort(datarow * data, int index, int nrows );
 void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int* size);
 
 // sort a file
-int sort_file(char* file_path, char* header, char* od);
+int sort_file(char* file_path, char* directory_path, char* filename, char* header, char* od);
 
 
 #endif
