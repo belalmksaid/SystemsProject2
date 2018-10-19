@@ -139,12 +139,10 @@ cell* get_cells(char** pre_cell, char data_type, int index, int len) {
 }
 
 int sort_file(char* file_path, char* header, char* od) {
-	printf("file: %s\n", file_path);
 	return 0;
 }
 
 void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int *size) {
-	printf("directory: %s\n", dts);
 	DIR *dir = opendir(dts);
 	if(dir != NULL) {
 		struct dirent *de;
@@ -226,5 +224,16 @@ int main(int argc, char* argv[]) {
     pid_t pids[256];
     int size = 0;
     recursive_scan_and_sort(directory_to_search, header_to_sort, output_directory, pids, &size);
+	printf("Initial PID: %d\n", getpid());
+	printf("PIDs of all child processes: ");
+	for(i = 0; i < size; i++) {
+		if(i + 1 != size) {
+			printf("%d, ", pids[i]);
+		}
+		else {
+			printf("%d", pid[i]);
+		}
+	}
+	printf("\nTotal number of processes: %d\n", size);
 	return 0;
 }
