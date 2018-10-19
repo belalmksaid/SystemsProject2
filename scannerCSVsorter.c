@@ -151,15 +151,14 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 		de = readdir(dir); // skip .
 		de = readdir(dir); // skip ..
 		while((de = readdir(dir)) != NULL) {
-			printf("%s\n", de->d_name);
-			*size += 1;
 			int name_len = strlen(de->d_name);
 			char* new_name = (char*)malloc(strlen(dts) + name_len + 2);
-			sprintf("%s/%s", dts, de->d_name);
+			sprintf(new_name, "%s/%s", dts, de->d_name);
 			if(!(de->d_type & DT_DIR)) {
 				recursive_scan_and_sort(new_name, header, od, pids, size);
 			}
 			else if(1){
+				*size += 1;
 				pids[*size - 1] = fork();
 				if(pids[*size - 1] == 0) {
 					sort_file(new_name, header, od);
