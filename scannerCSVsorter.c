@@ -139,11 +139,12 @@ cell* get_cells(char** pre_cell, char data_type, int index, int len) {
 }
 
 int sort_file(char* file_path, char* header, char* od) {
-	printf("%s\n", file_path);
+	printf("file: %s\n", file_path);
 	return 0;
 }
 
 void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int *size) {
+	printf("directory: %s\n", dts);
 	DIR *dir = opendir(dts);
 	if(dir != NULL) {
 		struct dirent *de;
