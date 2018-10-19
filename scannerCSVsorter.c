@@ -151,6 +151,7 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 		de = readdir(dir); // skip .
 		de = readdir(dir); // skip ..
 		while((de = readdir(dir)) != NULL) {
+			printf("%s\n", de->d_name);
 			*size += 1;
 			int name_len = strlen(de->d_name);
 			char* new_name = (char*)malloc(strlen(dts) + name_len + 2);
@@ -223,7 +224,6 @@ int main(int argc, char* argv[]) {
 			output_directory = argv[i];
 		}  
 	}
-	printf("Finished Reading\n");
     pid_t pids[256];
     int size = 0;
     recursive_scan_and_sort(directory_to_search, header_to_sort, output_directory, pids, &size);
