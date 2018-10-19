@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <dirent.h>
 #include <string.h>
-#include <sys/types.h>
+#include <unistd.h>
 
 
 // define data types
