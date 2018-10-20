@@ -168,12 +168,15 @@ int sort_file(char* file_path, char* directory_path, char* filename, char* heade
 			read = fgets(buff, sizeof buff, stdin);
 		}
 		datarow* sorted = mergesort(main_table->rows, cell_index, main_table->size);
-		char* new_name = (char*)malloc(strlen(file_path) + strlen(header_to_sort) + 10);
-		sprintf(new_name, "%s/%s-sorted-%s", dts, header_to_sort, filename);
+		
 		File* fout;
-		if((fout=fopen(new_name, "w"))==NULL) {
-    		perror("Cannot open file.\n");
-  		}
+		if(od==NULL) { // od is null means that there is no specified output directory
+			char* new_name = (char*)malloc(strlen(file_path) + strlen(header_to_sort) + 10);
+			sprintf(new_name, "%s/%s-sorted-%s", dts, header_to_sort, filename);
+			if((fout=fopen(new_name, "w"))==NULL) {
+				perror("Cannot open file.\n");
+			}
+		}
 		print_header(headers, no_of_cols, fout);
 		int j;
 		for(j = 0; j < main_table->size; ++j){
