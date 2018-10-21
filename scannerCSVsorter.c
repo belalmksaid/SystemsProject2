@@ -5,9 +5,9 @@ char get_type(char* val) {
 	if(strcmp(val, "color") == 0 || strcmp(val, "director_name") == 0 || strcmp(val, "actor_2_name") == 0 || strcmp(val, "genres") == 0 || strcmp(val, "actor_1_name") == 0 || strcmp(val, "movie_title") == 0 || strcmp(val, "actor_3_name") == 0 || strcmp(val, "plot_keywords") == 0  || strcmp(val, "movie_imdb_link") == 0 || strcmp(val, "language") == 0 || strcmp(val, "country") == 0 || strcmp(val, "content_rating") == 0) {
 		return STR;
 	}
-	else if(strcmp(val, "duration") == 0)
-		return INT;
-	return FLOAT;
+	else if( strcmp(val, "num_critic_for_reviews", 0) == 0 ||  strcmp(val, "director_facebook_likes", 0) == 0 ||  strcmp(val, "actor_3_facebook_likes", 0) == 0 ||  strcmp(val, "actor_1_facebook_likes", 0) == 0 ||  strcmp(val, "gross", 0) == 0 ||  strcmp(val, "num_voted_users", 0) == 0 ||  strcmp(val, "cast_total_facebook_likes", 0) == 0 ||  strcmp(val, "facenumber_in_poster", 0) == 0 ||  strcmp(val, "num_user_for_reviews", 0) == 0 ||  strcmp(val, "budget", 0) == 0 ||  strcmp(val, "title_year", 0) == 0 ||  strcmp(val, "actor_2_facebook_likes", 0) == 0 ||  strcmp(val, "imdb_score", 0) == 0 ||  strcmp(val, "aspect_ratio", 0) == 0 ||  strcmp(val, "movie_facebook_likes", 0) == 0 || strcmp(val, "duration") == 0) 
+		return FLOAT;
+	return 'E'; //for Error
 }
 
 void print_row(datarow* row, File* stream) {
@@ -141,6 +141,10 @@ cell* get_cells(char** pre_cell, char data_type, int index, int len) {
 int sort_file(char* file_path, char* directory_path, char* filename, char* header_to_sort, char* od) {
 	FILE* fp = fopen(file_path, "r");
 	char sort_type = get_type(header_to_sort);
+	if(sort_type == 'E') {
+		perror("Error: %s is not a valid column header. Did not sort file %s", header_to_sort, filename);
+		exit(0);
+	}
 	char buff[BUFSIZ];
 	char *read = fgets(buff, sizeof buff, fp);
 	int no_of_cols = 0;
@@ -175,6 +179,7 @@ int sort_file(char* file_path, char* directory_path, char* filename, char* heade
 			sprintf(new_name, "%s/%s-sorted-%s", dts, header_to_sort, filename);
 			if((fout=fopen(new_name, "w"))==NULL) {
 				perror("Cannot open file.\n");
+				exit(0);
 			}
 		}
 		print_header(headers, no_of_cols, fout);
@@ -207,7 +212,18 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 			}
 			sprintf(new_name, "%s/%s", dts, de->d_name);
 			if(de->d_type & DT_DIR) {
-				recursive_scan_and_sort(new_name, header, od, pids, size);
+				*size += 1;
+				pids[*size-1] = fork();
+				if(dpid < 0){
+					perror("Error: could not fork for directory %s", new_name);
+					exit(0);
+				}
+				else if(dpid > 0){
+					wait(NULL);
+				}
+				else {
+					recursive_scan_and_sort(new_name, header, od, pids, size);
+				}
 			}
 			else if(
 				name_len >= 4 && 
@@ -263,6 +279,7 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 int main(int argc, char* argv[]) {
 	if(argc < 3)
 		perror("incorrect arguments");
+		return 0;
 	int i = 1;
 	char *header_to_sort = NULL, *directory_to_search = NULL, *output_directory = NULL;
 	for(i = 1; i < argc; i++) {
