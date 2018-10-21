@@ -5,7 +5,7 @@ char get_type(char* val) {
 	if(strcmp(val, "color") == 0 || strcmp(val, "director_name") == 0 || strcmp(val, "actor_2_name") == 0 || strcmp(val, "genres") == 0 || strcmp(val, "actor_1_name") == 0 || strcmp(val, "movie_title") == 0 || strcmp(val, "actor_3_name") == 0 || strcmp(val, "plot_keywords") == 0  || strcmp(val, "movie_imdb_link") == 0 || strcmp(val, "language") == 0 || strcmp(val, "country") == 0 || strcmp(val, "content_rating") == 0) {
 		return STR;
 	}
-	else if( strcmp(val, "num_critic_for_reviews", 0) == 0 ||  strcmp(val, "director_facebook_likes", 0) == 0 ||  strcmp(val, "actor_3_facebook_likes", 0) == 0 ||  strcmp(val, "actor_1_facebook_likes", 0) == 0 ||  strcmp(val, "gross", 0) == 0 ||  strcmp(val, "num_voted_users", 0) == 0 ||  strcmp(val, "cast_total_facebook_likes", 0) == 0 ||  strcmp(val, "facenumber_in_poster", 0) == 0 ||  strcmp(val, "num_user_for_reviews", 0) == 0 ||  strcmp(val, "budget", 0) == 0 ||  strcmp(val, "title_year", 0) == 0 ||  strcmp(val, "actor_2_facebook_likes", 0) == 0 ||  strcmp(val, "imdb_score", 0) == 0 ||  strcmp(val, "aspect_ratio", 0) == 0 ||  strcmp(val, "movie_facebook_likes", 0) == 0 || strcmp(val, "duration") == 0) 
+	else if( strcmp(val, "num_critic_for_reviews") == 0 ||  strcmp(val, "director_facebook_likes") == 0 ||  strcmp(val, "actor_3_facebook_likes") == 0 ||  strcmp(val, "actor_1_facebook_likes") == 0 ||  strcmp(val, "gross") == 0 ||  strcmp(val, "num_voted_users") == 0 ||  strcmp(val, "cast_total_facebook_likes") == 0 ||  strcmp(val, "facenumber_in_poster") == 0 ||  strcmp(val, "num_user_for_reviews") == 0 ||  strcmp(val, "budget") == 0 ||  strcmp(val, "title_year") == 0 ||  strcmp(val, "actor_2_facebook_likes") == 0 ||  strcmp(val, "imdb_score") == 0 ||  strcmp(val, "aspect_ratio") == 0 ||  strcmp(val, "movie_facebook_likes") == 0 || strcmp(val, "duration") == 0) 
 		return FLOAT;
 	return 'E'; //for Error
 }
@@ -138,11 +138,11 @@ cell* get_cells(char** pre_cell, char data_type, int index, int len) {
 	return cells;
 }
 
-int sort_file(char* file_path, char* directory_path, char* filename, char* header_to_sort, char* od) {
-	FILE* fp = fopen(file_path, "r");
+int sort_file(char* file_path, char* dts, char* filename, char* header_to_sort, char* od) {
+	struct FILE* fp = fopen(file_path, "r");
 	char sort_type = get_type(header_to_sort);
 	if(sort_type == 'E') {
-		perror("Error: %s is not a valid column header. Did not sort file %s", header_to_sort, filename);
+		printf("Error: %s is not a valid column header. Did not sort file %s", header_to_sort, filename);
 		exit(0);
 	}
 	char buff[BUFSIZ];
@@ -150,6 +150,7 @@ int sort_file(char* file_path, char* directory_path, char* filename, char* heade
 	int no_of_cols = 0;
 	char** headers = split_by_comma(buff, &no_of_cols);
 	int cell_index = -1;
+	int i;
 	for(i = 0; i < no_of_cols; i++) {
 		if(!strcmp(headers[i], header_to_sort)) {
 			cell_index = i;
@@ -190,7 +191,7 @@ int sort_file(char* file_path, char* directory_path, char* filename, char* heade
 		fclose(fout);
 	}
 	else {
-		perror("Column %s does not exist in file %s", header_to_sort, file_path);
+		printf("Column %s does not exist in file %s", header_to_sort, file_path);
 		exit(0);
 	}
 	fclose(fp);
@@ -208,17 +209,17 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 			int dir_len = strlen(dts);
 			char* new_name = (char*)malloc(dir_len + name_len + 2);
 			if(dts[dir_len - 1] == '/') {
-				dts[dir_len - 1] == '\0';
+				dts[dir_len - 1] = '\0';
 			}
 			sprintf(new_name, "%s/%s", dts, de->d_name);
 			if(de->d_type & DT_DIR) {
 				*size += 1;
 				pids[*size-1] = fork();
-				if(dpid < 0){
-					perror("Error: could not fork for directory %s", new_name);
+				if(pids[*size-1] < 0){
+					printf("Error: could not fork for directory %s", new_name);
 					exit(0);
 				}
-				else if(dpid > 0){
+				else if(pids[*size-1] > 0){
 					wait(NULL);
 				}
 				else {
@@ -302,12 +303,14 @@ int main(int argc, char* argv[]) {
 	}
     //if output directory isn't an absolute path, we need to store the current path.
     if(output_directory[0] != '/'){
-	char current_d[1000] = get_cwd(current_d, 1000, );
+	char * current_d = (char*)malloc(1000*sizeof(char));
+	current_d = getcwd(current_d, 1000);
 	int currd_len = strlen(current_d);
 	char * new_d = (char*)malloc((currd_len+strlen(output_directory+2))*sizeof(char));
 	strcpy(new_d, current_d);
 	strcat(new_d, output_directory);
 	output_directory = new_d;
+	free(current_d);
     }
     pid_t pids[256];
     int size = 0;
