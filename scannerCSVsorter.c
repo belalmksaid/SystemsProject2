@@ -300,6 +300,15 @@ int main(int argc, char* argv[]) {
 		perror("No header supplied as input.");
 		return 0;
 	}
+    //if output directory isn't an absolute path, we need to store the current path.
+    if(output_directory[0] != '/'){
+	char current_d[1000] = get_cwd(current_d, 1000, );
+	int currd_len = strlen(current_d);
+	char * new_d = (char*)malloc((currd_len+strlen(output_directory+2))*sizeof(char));
+	strcpy(new_d, current_d);
+	strcat(new_d, output_directory);
+	output_directory = new_d;
+    }
     pid_t pids[256];
     int size = 0;
     recursive_scan_and_sort(directory_to_search, header_to_sort, output_directory, pids, &size);
