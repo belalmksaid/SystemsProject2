@@ -10,7 +10,7 @@ char get_type(char* val) {
 	return 'E'; //for Error
 }
 
-void print_row(datarow* row, File* stream) {
+void print_row(datarow* row, FILE* stream) {
 	int i = 0;
 	for(i = 0; i < row->size; i++) {
 		fprintf(stream, "%s", row->cells[i].original);
@@ -20,7 +20,7 @@ void print_row(datarow* row, File* stream) {
 	fprintf(stream, "\n");
 }
 
-void print_header(char** vals, int n, File* stream) {
+void print_header(char** vals, int n, FILE* stream) {
 	int i = 0;
 	for(i = 0; i < n; i++) {
 		fprintf(stream, "%s", vals[i]);
@@ -139,7 +139,7 @@ cell* get_cells(char** pre_cell, char data_type, int index, int len) {
 }
 
 int sort_file(char* file_path, char* dts, char* filename, char* header_to_sort, char* od) {
-	struct FILE* fp = fopen(file_path, "r");
+	FILE* fp = fopen(file_path, "r");
 	char sort_type = get_type(header_to_sort);
 	if(sort_type == 'E') {
 		printf("Error: %s is not a valid column header. Did not sort file %s", header_to_sort, filename);
@@ -174,7 +174,7 @@ int sort_file(char* file_path, char* dts, char* filename, char* header_to_sort, 
 		}
 		datarow* sorted = mergesort(main_table->rows, cell_index, main_table->size);
 		
-		File* fout;
+		FILE* fout;
 		if(od==NULL) { // od is null means that there is no specified output directory
 			char* new_name = (char*)malloc(strlen(file_path) + strlen(header_to_sort) + 10);
 			sprintf(new_name, "%s/%s-sorted-%s", dts, header_to_sort, filename);
