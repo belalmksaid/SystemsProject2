@@ -226,10 +226,7 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 					*lock = LOCKED;
 					*size += 1;
 					*lock = UNLOCKED;
-					if(*size == 1)
-						printf("%d", dpid);
-					else
-						printf(", %d", dpid);
+					printf("%d ", dpid);
 				}
 				else {
 					recursive_scan_and_sort(new_name, header, od, pids, size, lock);
@@ -255,10 +252,7 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 					*lock = LOCKED;
 					*size += 1;
 					*lock = UNLOCKED;
-					if(*size == 1)
-						printf("%d", fpid);
-					else
-						printf(", %d", fpid);
+					printf("%d ", fpid);
 					
 				}
 			}
@@ -327,7 +321,7 @@ int main(int argc, char* argv[]) {
 	*size = 0;
 	*lock = UNLOCKED;
 	printf("Initial PID: %d\n", getpid());
-	printf("PIDs of all child processes: ");
+	printf("PIDs of all child processes: \n");
 	recursive_scan_and_sort(directory_to_search, header_to_sort, output_directory, pids, size, lock);
 
 	printf("\nTotal number of processes: %d\n", *size + 1);
