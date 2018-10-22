@@ -221,8 +221,8 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 					exit(0);
 				}
 				else if(dpid > 0){
-					pids[*size-1] = dpid;
 					wait(NULL);
+					pids[*size-1] = dpid;
 				}
 				else {
 					recursive_scan_and_sort(new_name, header, od, pids, size);
@@ -244,8 +244,8 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 					exit(0);
 				}
 				else {
-					pids[*size - 1] = fpid;
 					wait(NULL);
+					pids[*size - 1] = fpid;
 				}
 			}
 
