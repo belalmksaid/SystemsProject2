@@ -214,7 +214,7 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 			}
 			sprintf(new_name, "%s/%s", dts, de->d_name);
 			if(de->d_type & DT_DIR) {
-				*size += 1;
+				//*size += 1;
 				//dpid = fork();
 				//if(fpid < 0){
 				//	printf("Error: could not fork for directory %s", new_name);
