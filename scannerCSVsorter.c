@@ -201,7 +201,7 @@ int sort_file(char* file_path, char* dts, char* filename, char* header_to_sort, 
 int recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int *size, int* lock) {
 	DIR *dir = opendir(dts);
 	pid_t fpid, dpid; //directory pid and file pid
-	int count = 1;
+	int count = 0;
 	if(dir != NULL) {
 		struct dirent *de;
 		de = readdir(dir); // skip .
@@ -223,7 +223,7 @@ int recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int 
 				else if(dpid > 0){
 					int eval = 0;
 					wait(&eval);
-					count += eval;
+					count += WEXITSTATUS(eval);
 					while(*lock == LOCKED);
 					*lock = LOCKED;
 					*size += 1;
@@ -252,7 +252,9 @@ int recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int 
 					exit(1);
 				}
 				else {
-					wait(NULL);
+					int eval = 0;
+					wait(&eval);
+					count += WEXITSTATUS(eval);
 					while(*lock == LOCKED);
 					*lock = LOCKED;
 					*size += 1;
