@@ -226,9 +226,9 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 					*lock = LOCKED;
 					*size += 1;
 					*lock = UNLOCKED;
-					printf("%d ", dpid);
 				}
 				else {
+					printf("%d ", getpid());
 					recursive_scan_and_sort(new_name, header, od, pids, size, lock);
 					free(new_name);
 					exit(0);
@@ -242,6 +242,7 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 				de->d_name[name_len - 4] == '.'){
 				fpid = fork();
 				if(fpid == 0) {
+					printf("%d ", getpid());
 					sort_file(new_name, dts, de->d_name, header, od);
 					free(new_name);
 					exit(0);
@@ -252,7 +253,6 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 					*lock = LOCKED;
 					*size += 1;
 					*lock = UNLOCKED;
-					printf("%d ", fpid);
 					
 				}
 			}
