@@ -223,7 +223,6 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 				else if(dpid > 0){
 					wait(NULL);
 					while(*lock == LOCKED);
-					int temp = *size;
 					*lock = LOCKED;
 					*size += 1;
 					*lock = UNLOCKED;
