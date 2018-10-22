@@ -142,7 +142,7 @@ int sort_file(char* file_path, char* dts, char* filename, char* header_to_sort, 
 	FILE* fp = fopen(file_path, "r");
 	char sort_type = get_type(header_to_sort);
 	if(sort_type == 'E') {
-		perror("Error: %s is not a valid column header. Did not sort file %s", header_to_sort, filename);
+		fprintf(stderr, "Error: %s is not a valid column header. Did not sort file %s", header_to_sort, filename);
 		exit(0);
 	}
 	char buff[BUFSIZ];
@@ -190,7 +190,7 @@ int sort_file(char* file_path, char* dts, char* filename, char* header_to_sort, 
 		fclose(fout);
 	}
 	else {
-		perror("Column %s does not exist in file %s", header_to_sort, file_path);
+		fprintf(stderr, "Column %s does not exist in file %s", header_to_sort, file_path);
 		exit(0);
 	}
 	fclose(fp);
@@ -217,7 +217,7 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 			if(de->d_type & DT_DIR) {
 				dpid = fork();
 				if(dpid < 0){
-					perror("Error: could not fork for directory %s", new_name);
+					fprintf(stderr, "Error: could not fork for directory %s", new_name);
 					exit(0);
 				}
 				else if(dpid > 0){
@@ -253,7 +253,6 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 				else {
 					wait(NULL);
 					while(*lock == LOCKED);
-					int temp = *size;
 					*lock = LOCKED;
 					*size += 1;
 					*lock = UNLOCKED;
