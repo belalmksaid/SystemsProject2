@@ -225,7 +225,7 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 					while(*lock == LOCKED);
 					int temp = *size;
 					*lock = LOCKED;
-					*size += 1
+					*size += 1;
 					*lock = UNLOCKED;
 					pids[temp] = dpid;
 				}
@@ -252,7 +252,7 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 					while(*lock == LOCKED);
 					int temp = *size;
 					*lock = LOCKED;
-					*size += 1
+					*size += 1;
 					*lock = UNLOCKED;
 					pids[temp] = fpid;
 					
