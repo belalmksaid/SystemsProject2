@@ -316,22 +316,19 @@ int main(int argc, char* argv[]) {
 		directory_to_search = current_d;
     }
 	// create shared memory across processes
-	int pids_id, size_id, lock_id;
-	pids_id = shmget(IPC_PRIVATE, 256*sizeof(pid_t), IPC_CREAT | 0666);
+	int size_id, lock_id;
 	size_id = shmget(IPC_PRIVATE, sizeof(int), IPC_CREAT | 0666);
 	lock_id = shmget(IPC_PRIVATE, sizeof(int), IPC_CREAT | 0666);
     pid_t *pids;
     int *size, *lock;
-	pids = (pid_t*)shmat(pids_id, 0, 0);
 	size = (int *)shmat(size_id, 0, 0);
 	lock = (int *)shmat(lock_id, 0, 0);
 	*size = 0;
 	*lock = UNLOCKED;
 	printf("Initial PID: %d\n", getpid());
 	printf("PIDs of all child processes: \n");
-	int k = recursive_scan_and_sort(directory_to_search, header_to_sort, output_directory, pids, size, lock);
+	int k = recursive_scan_and_sort(directory_to_search, header_to_sort, output_directory, NULL, size, lock);
 	
 	printf("\nTotal number of processes: %d\n", *size + 1);
-	printf("%d\n", k);
 	return 0;
 }
