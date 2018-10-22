@@ -230,7 +230,7 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 					pids[temp] = dpid;
 				}
 				else {
-					recursive_scan_and_sort(new_name, header, od, pids, size);
+					recursive_scan_and_sort(new_name, header, od, pids, size, lock);
 					free(new_name);
 					exit(0);
 				}
