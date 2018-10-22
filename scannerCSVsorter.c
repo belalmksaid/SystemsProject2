@@ -278,9 +278,10 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 */
 
 int main(int argc, char* argv[]) {
-	if(argc < 3)
+	if(argc < 3) {
 		perror("incorrect arguments");
 		return 0;
+	}
 	int i = 1;
 	char *header_to_sort = NULL, *directory_to_search = NULL, *output_directory = NULL;
 	for(i = 1; i < argc; i++) {
@@ -302,15 +303,25 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
     //if output directory isn't an absolute path, we need to store the current path.
-    if(output_directory[0] != '/'){
-	char * current_d = (char*)malloc(1000*sizeof(char));
+    char * current_d = NULL;
+    if(output_directory == NULL || output_directory[0] != '/'){
+        int odsize = output_directory? strlen(output_directory) : 0;
+	current_d = (char*)malloc(1000*sizeof(char));
 	current_d = getcwd(current_d, 1000);
 	int currd_len = strlen(current_d);
-	char * new_d = (char*)malloc((currd_len+strlen(output_directory+2))*sizeof(char));
+	char * new_d = (char*)malloc((currd_len+odsize+2)*sizeof(char));
 	strcpy(new_d, current_d);
-	strcat(new_d, output_directory);
+	if(output_directory) {
+		strcat(new_d, output_directory);
+	}
 	output_directory = new_d;
-	free(current_d);
+    }
+    if(directory_to_search == NULL) {
+	if(current_d == NULL) {
+		current_d = (char*)malloc(1000*sizeof(char));
+		current_d = getcwd(current_d, 1000);
+	}
+	directory_to_search = current_d;
     }
     pid_t pids[256];
     int size = 0;
