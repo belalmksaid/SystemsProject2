@@ -200,7 +200,7 @@ int sort_file(char* file_path, char* dts, char* filename, char* header_to_sort, 
 
 void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int *size) {
 	DIR *dir = opendir(dts);
-	pid_t fpid; //directory pid and file pid
+	pid_t fpid, dpid; //directory pid and file pid
 	if(dir != NULL) {
 		struct dirent *de;
 		de = readdir(dir); // skip .
@@ -214,20 +214,22 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 			}
 			sprintf(new_name, "%s/%s", dts, de->d_name);
 			if(de->d_type & DT_DIR) {
-				//*size += 1;
-				//dpid = fork();
-				//if(fpid < 0){
-				//	printf("Error: could not fork for directory %s", new_name);
-				//	exit(0);
-				//}
-				//else if(pids[*size-1] > 0){
-				//	pids[*size-1] = dpid;
-				//	wait(NULL);
-				//}
-				//else {
+				*size += 1;
+				dpid = fork();
+				if(dpid < 0){
+					printf("Error: could not fork for directory %s", new_name);
+					exit(0);
+				}
+				else if(dpid > 0){
+					pids[*size-1] = dpid;
+					wait(NULL);
+				}
+				else {
 					recursive_scan_and_sort(new_name, header, od, pids, size);
+				//	return; //From Bennett: This results in multiple (possibly infinite?) outputs.
 					 //exit once the child process has finished its duties. FROM BELAL: DO NOT EXIT HERE, WOULD NOT PRINT OUTPUT IN THE MAIN, NEEDS FIXING
-				//}
+					exit(0); //From Bennett: R U sure?
+				}
 			}
 			else if(
 				name_len >= 4 && 
