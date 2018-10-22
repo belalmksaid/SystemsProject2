@@ -309,9 +309,9 @@ int main(int argc, char* argv[]) {
     int *size, *lock;
 	pids = (pid_t*)shmat(pids_id, 0, 0);
 	size = (int *)shmat(size_id, 0, 0);
-	lock = (int *)shmat(lock_id), 0, 0);
+	lock = (int *)shmat(lock_id, 0, 0);
 	*size = 0;
-	*lock_id = UNLOCKED;
+	*lock = UNLOCKED;
 	recursive_scan_and_sort(directory_to_search, header_to_sort, output_directory, pids, size);
 	printf("Initial PID: %d\n", getpid());
 	printf("PIDs of all child processes: ");
