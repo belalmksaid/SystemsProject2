@@ -1,0 +1,31 @@
+scannerCSVsorter
+
+Input:
+
+Data Structures:
+    cell: contains the original data and converted data at a certain cell in the table (between commas in a single row of the csv file)
+	datarow: contains a row of cells and the number of cells (to store the data from a full row of the csv file)
+	table: contains an array of rows (to store the data of the entire csv file).
+
+Process:
+	1. Search Directory using recursive_scan_and_sort()
+    2. If File, fork(), sort_file()
+    3. If directory, fork() and go to 1
+    4. Output all PIDs
+
+Search directory: recursive_scan_and_sort() in scannerCSVsorter.c
+    Use opendir() and readdir() to read the contents of directory
+    Skips . and .. to avoid recursive loops and fork() bombs
+    When it encounters a file, it calls fork(), adds the PID to the shared memory array and calls sort_file()
+    When it encounters a folder, it calls fork(), adds the PIDS to the shared memory array and calls recursive_scan_and_sort()
+
+Sort file: sort_file() in scannerCSVsorter.c
+    Uses the code from Asst0 with some changes to use a file buffer instead of an STDIN buffer
+
+Testing:
+    We created a folder with nested folders 4 levels deep with multiple copies of movie_metadata.csv
+
+More Info:
+    Why did I use shared memory for? To avoid printing the trailing comma after printing all the PIDs
+
+
