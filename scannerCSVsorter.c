@@ -194,14 +194,14 @@ int sort_file(char* file_path, char* dts, char* filename, char* header_to_sort, 
 		exit(0);
 	}
 	fclose(fp);
-	exit(0);
-	return 0;
+	return 1;
 }
 
 
-void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int *size, int* lock) {
+int recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int *size, int* lock) {
 	DIR *dir = opendir(dts);
 	pid_t fpid, dpid; //directory pid and file pid
+	int count = 1;
 	if(dir != NULL) {
 		struct dirent *de;
 		de = readdir(dir); // skip .
@@ -221,7 +221,9 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 					exit(0);
 				}
 				else if(dpid > 0){
-					wait(NULL);
+					int eval = 0;
+					wait(&eval);
+					count += eval;
 					while(*lock == LOCKED);
 					*lock = LOCKED;
 					*size += 1;
@@ -230,9 +232,9 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 				else {
 					printf("%d ", getpid());
 					fflush(stdout);
-					recursive_scan_and_sort(new_name, header, od, pids, size, lock);
+					count += recursive_scan_and_sort(new_name, header, od, pids, size, lock);
 					free(new_name);
-					exit(0);
+					exit(count);
 				}
 			}
 			else if(
@@ -247,7 +249,7 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 					fflush(stdout);
 					sort_file(new_name, dts, de->d_name, header, od);
 					free(new_name);
-					exit(0);
+					exit(1);
 				}
 				else {
 					wait(NULL);
@@ -262,6 +264,7 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 		}
 	}
 	closedir(dir);
+	return count;
 }
 
 int main(int argc, char* argv[]) {
@@ -324,8 +327,9 @@ int main(int argc, char* argv[]) {
 	*lock = UNLOCKED;
 	printf("Initial PID: %d\n", getpid());
 	printf("PIDs of all child processes: \n");
-	recursive_scan_and_sort(directory_to_search, header_to_sort, output_directory, pids, size, lock);
-
+	int k = recursive_scan_and_sort(directory_to_search, header_to_sort, output_directory, pids, size, lock);
+	
 	printf("\nTotal number of processes: %d\n", *size + 1);
+	printf("%d\n", k);
 	return 0;
 }
