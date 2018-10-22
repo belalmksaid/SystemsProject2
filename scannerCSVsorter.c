@@ -319,7 +319,6 @@ int main(int argc, char* argv[]) {
 	int size_id, lock_id;
 	size_id = shmget(IPC_PRIVATE, sizeof(int), IPC_CREAT | 0666);
 	lock_id = shmget(IPC_PRIVATE, sizeof(int), IPC_CREAT | 0666);
-    pid_t *pids;
     int *size, *lock;
 	size = (int *)shmat(size_id, 0, 0);
 	lock = (int *)shmat(lock_id, 0, 0);
@@ -327,7 +326,7 @@ int main(int argc, char* argv[]) {
 	*lock = UNLOCKED;
 	printf("Initial PID: %d\n", getpid());
 	printf("PIDs of all child processes: \n");
-	int k = recursive_scan_and_sort(directory_to_search, header_to_sort, output_directory, NULL, size, lock);
+	recursive_scan_and_sort(directory_to_search, header_to_sort, output_directory, NULL, size, lock);
 	
 	printf("\nTotal number of processes: %d\n", *size + 1);
 	return 0;
