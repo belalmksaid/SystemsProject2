@@ -198,6 +198,7 @@ int sort_file(char* file_path, char* dts, char* filename, char* header_to_sort, 
 	return 0;
 }
 
+
 void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int *size) {
 	DIR *dir = opendir(dts);
 	pid_t fpid, dpid; //directory pid and file pid
@@ -299,10 +300,18 @@ int main(int argc, char* argv[]) {
 			current_d = getcwd(current_d, 1000);
 		}
 		directory_to_search = current_d;
-    	}
-    	pid_t pids[256];
-    	int size = 0;
-	recursive_scan_and_sort(directory_to_search, header_to_sort, output_directory, pids, &size);
+    }
+	int pids_id, size_id, lock_id;
+	pids_id = shmget(IPC_PRIVATE, 256*sizeof(pid_t), IPC_CREATE | 0666);
+	size_id = shmget(IPC_PRIVATE, sizeof(int), IPC_CREATE | 0666);
+	lock_id = shmget(IPC_PRIVATE, sizeof(int), IPC_CREATE | 0666);
+    pid_t *pids;
+    int *size, *lock;
+	pids = (pid_t*)shmat(pids_id, 0, 0);
+	size = (int *)shmat(size_id, 0, 0);
+	lock = (int *)shmat(size_id, 0, 0);
+	*size = 0;
+	recursive_scan_and_sort(directory_to_search, header_to_sort, output_directory, pids, size);
 	printf("Initial PID: %d\n", getpid());
 	printf("PIDs of all child processes: ");
 	for(i = 0; i < size; i++) {

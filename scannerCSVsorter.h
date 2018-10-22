@@ -8,7 +8,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <unistd.h>
-#include<sys/wait.h>
+#include <sys/wait.h>
 
 
 // define data types
