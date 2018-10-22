@@ -215,7 +215,6 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 			}
 			sprintf(new_name, "%s/%s", dts, de->d_name);
 			if(de->d_type & DT_DIR) {
-				*size += 1;
 				dpid = fork();
 				if(dpid < 0){
 					printf("Error: could not fork for directory %s", new_name);
@@ -223,6 +222,7 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 				}
 				else if(dpid > 0){
 					wait(NULL);
+					*size += 1;
 					pids[*size-1] = dpid;
 				}
 				else {
@@ -238,7 +238,6 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 				de->d_name[name_len - 2] == 's' && 
 				de->d_name[name_len - 3] == 'c' &&
 				de->d_name[name_len - 4] == '.'){
-				*size += 1;
 				fpid = fork();
 				if(fpid == 0) {
 					sort_file(new_name, dts, de->d_name, header, od);
@@ -246,6 +245,7 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 				}
 				else {
 					wait(NULL);
+					*size += 1;
 					pids[*size - 1] = fpid;
 				}
 			}
