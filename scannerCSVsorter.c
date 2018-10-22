@@ -229,6 +229,7 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 				}
 				else {
 					printf("%d ", getpid());
+					fflush(stdout);
 					recursive_scan_and_sort(new_name, header, od, pids, size, lock);
 					free(new_name);
 					exit(0);
@@ -243,6 +244,7 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 				fpid = fork();
 				if(fpid == 0) {
 					printf("%d ", getpid());
+					fflush(stdout);
 					sort_file(new_name, dts, de->d_name, header, od);
 					free(new_name);
 					exit(0);
