@@ -24,6 +24,9 @@
 #define DATE 'd'
 #define FLOAT 'f'
 
+#define LOCKED 0
+#define UNLOCKED 1
+
 #define TABLE_SIZE 5000
 
 #define max(a, b) ((a) > (b) ? (a) : (b))

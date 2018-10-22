@@ -302,26 +302,27 @@ int main(int argc, char* argv[]) {
 		directory_to_search = current_d;
     }
 	int pids_id, size_id, lock_id;
-	pids_id = shmget(IPC_PRIVATE, 256*sizeof(pid_t), IPC_CREATE | 0666);
-	size_id = shmget(IPC_PRIVATE, sizeof(int), IPC_CREATE | 0666);
-	lock_id = shmget(IPC_PRIVATE, sizeof(int), IPC_CREATE | 0666);
+	pids_id = shmget(IPC_PRIVATE, 256*sizeof(pid_t), IPC_CREAT | 0666);
+	size_id = shmget(IPC_PRIVATE, sizeof(int), IPC_CREAT | 0666);
+	lock_id = shmget(IPC_PRIVATE, sizeof(int), IPC_CREAT | 0666);
     pid_t *pids;
     int *size, *lock;
 	pids = (pid_t*)shmat(pids_id, 0, 0);
 	size = (int *)shmat(size_id, 0, 0);
-	lock = (int *)shmat(size_id, 0, 0);
+	lock = (int *)shmat(lock_id), 0, 0);
 	*size = 0;
+	*lock_id = UNLOCKED;
 	recursive_scan_and_sort(directory_to_search, header_to_sort, output_directory, pids, size);
 	printf("Initial PID: %d\n", getpid());
 	printf("PIDs of all child processes: ");
-	for(i = 0; i < size; i++) {
-		if(i + 1 != size) {
+	for(i = 0; i < *size; i++) {
+		if(i + 1 != *size) {
 			printf("%d, ", pids[i]);
 		}
 		else {
 			printf("%d", pids[i]);
 		}
 	}
-	printf("\nTotal number of processes: %d\n", size);
+	printf("\nTotal number of processes: %d\n", *size);
 	return 0;
 }
