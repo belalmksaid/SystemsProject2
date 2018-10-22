@@ -182,6 +182,18 @@ int sort_file(char* file_path, char* dts, char* filename, char* header_to_sort, 
 				exit(0);
 			}
 		}
+		else { // od is specified already.                                    
+			char* new_name = (char*)malloc(strlen(od) + strlen(header_to_sort) + 10);
+			if(od[strlen(od)-1] != '/')
+				sprintf(new_name, "%s/%s-sorted-%s", od, header_to_sort, filename);
+			else
+				sprintf(new_name, "%s%s-sorted-%s", od, header_to_sort, filename);
+				
+			if((fout=fopen(new_name, "w"))==NULL) {
+				perror("Cannot open file.\n");
+				exit(0);
+			}
+		}
 		print_header(headers, no_of_cols, fout);
 		int j;
 		for(j = 0; j < main_table->size; ++j){
@@ -297,15 +309,16 @@ int main(int argc, char* argv[]) {
     //if output directory isn't an absolute path, we need to store the current path.
 	char * current_d = NULL;
     	if(output_directory != NULL && output_directory[0] != '/'){
-        	int odsize = output_directory? strlen(output_directory) : 0;
+        	int odsize = strlen(output_directory);
 		current_d = (char*)malloc(1000*sizeof(char));
 		current_d = getcwd(current_d, 1000);
 		int currd_len = strlen(current_d);
 		char * new_d = (char*)malloc((currd_len+odsize+2)*sizeof(char));
 		strcpy(new_d, current_d);
-		if(output_directory) {
-			strcat(new_d, output_directory);
+		if(new_d[currd_len-1] != '/'){
+			strcat(new_d, "/");
 		}
+		strcat(new_d, output_directory);
 		output_directory = new_d;
 	}
 	if(directory_to_search == NULL) {
@@ -314,7 +327,7 @@ int main(int argc, char* argv[]) {
 			current_d = getcwd(current_d, 1000);
 		}
 		directory_to_search = current_d;
-    }
+    	}
 	// create shared memory across processes
 	int size_id, lock_id;
 	size_id = shmget(IPC_PRIVATE, sizeof(int), IPC_CREAT | 0666);
