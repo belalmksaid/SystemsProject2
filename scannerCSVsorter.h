@@ -81,7 +81,7 @@ datarow * sort(datarow * data, int ndata, int index);
 datarow * mergesort(datarow * data, int index, int nrows );
 
 // recursive scanner sort
-void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int* size);
+void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int* size, int* lock);
 
 // sort a file
 int sort_file(char* file_path, char* directory_path, char* filename, char* header, char* od);

@@ -199,7 +199,7 @@ int sort_file(char* file_path, char* dts, char* filename, char* header_to_sort, 
 }
 
 
-void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int *size) {
+void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int *size, int* lock) {
 	DIR *dir = opendir(dts);
 	pid_t fpid, dpid; //directory pid and file pid
 	if(dir != NULL) {
@@ -222,14 +222,17 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 				}
 				else if(dpid > 0){
 					wait(NULL);
-					*size += 1;
-					pids[*size-1] = dpid;
+					while(*lock == LOCKED);
+					int temp = *size;
+					*lock = LOCKED;
+					*size += 1
+					*lock = UNLOCKED;
+					pids[temp] = dpid;
 				}
 				else {
 					recursive_scan_and_sort(new_name, header, od, pids, size);
-				//	return; //From Bennett: This results in multiple (possibly infinite?) outputs.
-					 //exit once the child process has finished its duties. FROM BELAL: DO NOT EXIT HERE, WOULD NOT PRINT OUTPUT IN THE MAIN, NEEDS FIXING
-					exit(0); //From Bennett: R U sure?
+					free(new_name);
+					exit(0);
 				}
 			}
 			else if(
@@ -241,12 +244,18 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 				fpid = fork();
 				if(fpid == 0) {
 					sort_file(new_name, dts, de->d_name, header, od);
+					free(new_name);
 					exit(0);
 				}
 				else {
 					wait(NULL);
-					*size += 1;
-					pids[*size - 1] = fpid;
+					while(*lock == LOCKED);
+					int temp = *size;
+					*lock = LOCKED;
+					*size += 1
+					*lock = UNLOCKED;
+					pids[temp] = fpid;
+					
 				}
 			}
 
@@ -301,6 +310,7 @@ int main(int argc, char* argv[]) {
 		}
 		directory_to_search = current_d;
     }
+	// create shared memory across processes
 	int pids_id, size_id, lock_id;
 	pids_id = shmget(IPC_PRIVATE, 256*sizeof(pid_t), IPC_CREAT | 0666);
 	size_id = shmget(IPC_PRIVATE, sizeof(int), IPC_CREAT | 0666);
@@ -312,7 +322,7 @@ int main(int argc, char* argv[]) {
 	lock = (int *)shmat(lock_id, 0, 0);
 	*size = 0;
 	*lock = UNLOCKED;
-	recursive_scan_and_sort(directory_to_search, header_to_sort, output_directory, pids, size);
+	recursive_scan_and_sort(directory_to_search, header_to_sort, output_directory, pids, size, lock);
 	printf("Initial PID: %d\n", getpid());
 	printf("PIDs of all child processes: ");
 	for(i = 0; i < *size; i++) {
@@ -323,6 +333,6 @@ int main(int argc, char* argv[]) {
 			printf("%d", pids[i]);
 		}
 	}
-	printf("\nTotal number of processes: %d\n", *size);
+	printf("\nTotal number of processes: %d\n", *size + 1);
 	return 0;
 }
