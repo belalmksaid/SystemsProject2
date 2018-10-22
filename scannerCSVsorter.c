@@ -160,7 +160,7 @@ int sort_file(char* file_path, char* dts, char* filename, char* header_to_sort, 
 	if(cell_index != -1) {
 		table* main_table = create_table();
 		main_table->header = headers;
-		read = fgets(buff, sizeof buff, stdin);
+		read = fgets(buff, sizeof buff, fp);
 		while(read != NULL) {
 			int nc = 0;
 			char** split_line = split_by_comma(buff, &nc);
@@ -170,10 +170,9 @@ int sort_file(char* file_path, char* dts, char* filename, char* header_to_sort, 
 			cell* cells = get_cells(split_line, sort_type, cell_index, nc);
 			datarow row = create_datarow(cells, nc);
 			append(main_table, &row); 
-			read = fgets(buff, sizeof buff, stdin);
+			read = fgets(buff, sizeof buff, fp);
 		}
 		datarow* sorted = mergesort(main_table->rows, cell_index, main_table->size);
-		
 		FILE* fout;
 		if(od==NULL) { // od is null means that there is no specified output directory
 			char* new_name = (char*)malloc(strlen(file_path) + strlen(header_to_sort) + 10);
@@ -195,12 +194,13 @@ int sort_file(char* file_path, char* dts, char* filename, char* header_to_sort, 
 		exit(0);
 	}
 	fclose(fp);
+	exit(0);
 	return 0;
 }
 
 void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int *size) {
 	DIR *dir = opendir(dts);
-	pid_t dpid, fpid; //directory pid and file pid
+	pid_t fpid; //directory pid and file pid
 	if(dir != NULL) {
 		struct dirent *de;
 		de = readdir(dir); // skip .
@@ -215,19 +215,19 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 			sprintf(new_name, "%s/%s", dts, de->d_name);
 			if(de->d_type & DT_DIR) {
 				*size += 1;
-				dpid = fork();
-				if(fpid < 0){
-					printf("Error: could not fork for directory %s", new_name);
-					exit(0);
-				}
-				else if(pids[*size-1] > 0){
-					pids[*size-1] = dpid;
-					wait(NULL);
-				}
-				else {
+				//dpid = fork();
+				//if(fpid < 0){
+				//	printf("Error: could not fork for directory %s", new_name);
+				//	exit(0);
+				//}
+				//else if(pids[*size-1] > 0){
+				//	pids[*size-1] = dpid;
+				//	wait(NULL);
+				//}
+				//else {
 					recursive_scan_and_sort(new_name, header, od, pids, size);
-					exit(0); //exit once the child process has finished its duties.
-				}
+					 //exit once the child process has finished its duties. FROM BELAL: DO NOT EXIT HERE, WOULD NOT PRINT OUTPUT IN THE MAIN, NEEDS FIXING
+				//}
 			}
 			else if(
 				name_len >= 4 && 
@@ -251,39 +251,6 @@ void recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int
 	}
 	closedir(dir);
 }
-/*
-    char sort_type = get_type(header_to_sort);
-	char buff[BUFSIZ];
-	char *read = fgets(buff, sizeof buff, stdin);
-	int no_of_cols = 0;
-	char** headers = split_by_comma(buff, &no_of_cols);
-	int cell_index = -1;
-	for(i = 0; i < no_of_cols; i++) {
-		if(!strcmp(headers[i], header_to_sort)) {
-			cell_index = i;
-			break;
-		}
-	}
-	if(cell_index != -1) {
-		table* main_table = create_table();
-		main_table->header = headers;
-		read = fgets(buff, sizeof buff, stdin);
-		while(read != NULL) {
-			int nc = 0;
-			char** split_line = split_by_comma(buff, &nc);
-			cell* cells = get_cells(split_line, sort_type, cell_index, nc);
-			datarow row = create_datarow(cells, nc);
-			append(main_table, &row); 
-			read = fgets(buff, sizeof buff, stdin);
-		}
-		datarow* sorted = mergesort(main_table->rows, cell_index, main_table->size);
-		print_header(headers, no_of_cols);
-		int j;
-		for(j = 0; j < main_table->size; ++j){
-			print_row(&(sorted[j]));
-		}
-	}
-*/
 
 int main(int argc, char* argv[]) {
 	if(argc < 3) {
@@ -311,29 +278,29 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
     //if output directory isn't an absolute path, we need to store the current path.
-    char * current_d = NULL;
-    if(output_directory == NULL || output_directory[0] != '/'){
-        int odsize = output_directory? strlen(output_directory) : 0;
-	current_d = (char*)malloc(1000*sizeof(char));
-	current_d = getcwd(current_d, 1000);
-	int currd_len = strlen(current_d);
-	char * new_d = (char*)malloc((currd_len+odsize+2)*sizeof(char));
-	strcpy(new_d, current_d);
-	if(output_directory) {
-		strcat(new_d, output_directory);
-	}
-	output_directory = new_d;
-    }
-    if(directory_to_search == NULL) {
-	if(current_d == NULL) {
+	char * current_d = NULL;
+    	if(output_directory != NULL && output_directory[0] != '/'){
+        	int odsize = output_directory? strlen(output_directory) : 0;
 		current_d = (char*)malloc(1000*sizeof(char));
 		current_d = getcwd(current_d, 1000);
+		int currd_len = strlen(current_d);
+		char * new_d = (char*)malloc((currd_len+odsize+2)*sizeof(char));
+		strcpy(new_d, current_d);
+		if(output_directory) {
+			strcat(new_d, output_directory);
+		}
+		output_directory = new_d;
 	}
-	directory_to_search = current_d;
-    }
-    pid_t pids[256];
-    int size = 0;
-    recursive_scan_and_sort(directory_to_search, header_to_sort, output_directory, pids, &size);
+	if(directory_to_search == NULL) {
+		if(current_d == NULL) {
+			current_d = (char*)malloc(1000*sizeof(char));
+			current_d = getcwd(current_d, 1000);
+		}
+		directory_to_search = current_d;
+    	}
+    	pid_t pids[256];
+    	int size = 0;
+	recursive_scan_and_sort(directory_to_search, header_to_sort, output_directory, pids, &size);
 	printf("Initial PID: %d\n", getpid());
 	printf("PIDs of all child processes: ");
 	for(i = 0; i < size; i++) {
