@@ -284,8 +284,9 @@ int recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int 
 }
 
 int main(int argc, char* argv[]) {
-	if(argc < 3) {
+	if(argc < 3 || argc > 7 || argc % 2 == 0) {
 		perror("incorrect arguments");
+		fprintf(stdout, "incorrect arguments");
 		return 0;
 	}
 	int i = 1;
@@ -306,6 +307,7 @@ int main(int argc, char* argv[]) {
 	}
 	if(header_to_sort == NULL) {
 		perror("No header supplied as input.");
+		fprintf(stdout, "No header supplied as input.");
 		return 0;
 	}
     //if output directory isn't an absolute path, we need to store the current path.
