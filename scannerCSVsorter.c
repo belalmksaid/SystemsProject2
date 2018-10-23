@@ -249,21 +249,23 @@ int recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int 
 					exit(count);
 				}
 			}
-			else if(
+			else {
+			     fpid = fork();
+			     printf("%d ", getpid());
+			     fflush(stdout);
+			     if(fpid == 0) {
+				if(
 				name_len >= 4 && 
 				de->d_name[name_len - 1] == 'v' && 
 				de->d_name[name_len - 2] == 's' && 
 				de->d_name[name_len - 3] == 'c' &&
 				de->d_name[name_len - 4] == '.'){
-				fpid = fork();
-				if(fpid == 0) {
-					printf("%d ", getpid());
-					fflush(stdout);
 					sort_file(new_name, dts, de->d_name, header, od);
-					free(new_name);
-					exit(1);
-				}
-				else {
+				} //end file is .csv
+			     free(new_name);
+		  	     exit(1);
+			     } //end this is child process
+			     else {
 					int eval = 0;
 					wait(&eval);
 					count += WEXITSTATUS(eval);
@@ -272,12 +274,12 @@ int recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int 
 					*size += 1;
 					*lock = UNLOCKED;
 					
-				}
-			}
-
-		}
-	}
-	closedir(dir);
+			     } //end this is parent process
+			} //end not a directory
+		     } //end while readdir not null
+		
+	  closedir(dir);
+	} //end if dir not null
 	return count;
 }
 
