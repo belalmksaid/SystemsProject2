@@ -361,6 +361,6 @@ int main(int argc, char* argv[]) {
 	printf("PIDs of all child processes: \n");
 	recursive_scan_and_sort(directory_to_search, header_to_sort, output_directory, NULL, size, lock);
 	
-	printf("\nTotal number of processes: %d\n", *size + 1);
+	printf("\nTotal number of processes: %d\n", *size); //Just size instead of size+1 because main process doesn't count.
 	return 0;
 }

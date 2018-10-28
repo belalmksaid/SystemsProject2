@@ -31,8 +31,11 @@ Sort file: sort_file() in scannerCSVsorter.c
     Uses the code from Asst0 with some slight changes to use a file buffer instead of an STDIN buffer. The mergesort algorithm is identical to the one in Asst0.
 
 Testing:
-    We created a folder with nested folders 4 levels deep with multiple copies of movie_metadata.csv
+    We created a folder with nested folders 4 levels deep with multiple copies of movie_metadata.csv, and had our scannerCSVsorter program sort the files 
+	with various starting directories, output directories, and headers to sort on.
 
 More Info:
     We used shared memory to improve the efficiency of the program, and to avoid the possibility of different processes trying to print to stdout at the same time. 
+    For fatal errors, the error message was output to both STDOUT and STDERR so that there would be no ambiguity for the user as to why the program crashed 
+	(as Professor Francisco suggested in class).
 
