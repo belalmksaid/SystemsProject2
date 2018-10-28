@@ -280,21 +280,11 @@ int recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int 
 }
 
 int main(int argc, char* argv[]) {
-	if(argc < 3){ 
-		perror("Not enough arguments: -c required\n");
-		fprintf(stdout, "Not enough arguments: -c required\n");
+	if(argc < 3 || argc > 7 || argc % 2 == 0) {
+		perror("incorrect arguments");
+		fprintf(stdout, "incorrect arguments");
 		return 0;
 	}
-	else if(argc > 7) {
-		perror("Too many arguments.\n");
-		fprintf(stdout, "Too many arguments.\n");
-		return 0;
-	}
-	else if(argc % 2 == 0){
-		perror("Incorrect arguments: provide value after all flags.\n");
-		fprintf(stdout, "Incorrect arguments: provide value after all flags.\n");
-		return 0;
-	} 
 	int i = 1;
 	char *header_to_sort = NULL, *directory_to_search = NULL, *output_directory = NULL;
 	for(i = 1; i < argc; i++) {
@@ -302,23 +292,18 @@ int main(int argc, char* argv[]) {
 			i++;
 			header_to_sort = argv[i];
 		} 
-		else if(strcmp(argv[i], "-d") == 0) {
+        else if(strcmp(argv[i], "-d") == 0) {
 			i++;
 			directory_to_search = argv[i];
 		}
-		else if(strcmp(argv[i], "-o") == 0) {
+        else if(strcmp(argv[i], "-o") == 0) {
 			i++;
 			output_directory = argv[i];
 		}  
-		else {
-			fprintf(stderr, "Unrecognized flag %s: please use only -c and [-d, -o]\n", argv[i]);
-			fprintf(stdout, "Unrecognized flag %s: please use only -c and [-d, -o]\n", argv[i]);
-			return 0;
-		}
 	}
 	if(header_to_sort == NULL) {
-		perror("No header supplied as input.\n");
-		fprintf(stdout, "No header supplied as input.\n");
+		perror("No header supplied as input.");
+		fprintf(stdout, "No header supplied as input.");
 		return 0;
 	}
 	if(get_type(header_to_sort) == 'E') {
