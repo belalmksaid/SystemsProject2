@@ -141,10 +141,6 @@ cell* get_cells(char** pre_cell, char data_type, int index, int len) {
 int sort_file(char* file_path, char* dts, char* filename, char* header_to_sort, char* od) {
 	FILE* fp = fopen(file_path, "r");
 	char sort_type = get_type(header_to_sort);
-	if(sort_type == 'E') {
-		fprintf(stderr, "Error: %s is not a valid column header. Did not sort file %s", header_to_sort, filename);
-		exit(0);
-	}
 	char buff[BUFSIZ];
 	char *read = fgets(buff, sizeof buff, fp);
 	int no_of_cols = 0;
@@ -165,6 +161,7 @@ int sort_file(char* file_path, char* dts, char* filename, char* header_to_sort, 
 			int nc = 0;
 			char** split_line = split_by_comma(buff, &nc);
 			if(nc != no_of_cols) {
+				fprintf(stderr, "Could not sort file %s: incorrect format", filename);
 				exit(0);
 			}
 			cell* cells = get_cells(split_line, sort_type, cell_index, nc);
@@ -250,22 +247,22 @@ int recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int 
 				}
 			}
 			else {
-			     fpid = fork();
-			     printf("%d ", getpid());
-			     fflush(stdout);
-			     if(fpid == 0) {
-				if(
-				name_len >= 4 && 
-				de->d_name[name_len - 1] == 'v' && 
-				de->d_name[name_len - 2] == 's' && 
-				de->d_name[name_len - 3] == 'c' &&
-				de->d_name[name_len - 4] == '.'){
-					sort_file(new_name, dts, de->d_name, header, od);
-				} //end file is .csv
-			     free(new_name);
-		  	     exit(1);
-			     } //end this is child process
-			     else {
+				fpid = fork();
+				if(fpid == 0) {
+					printf("%d ", getpid());
+					fflush(stdout);
+					if(
+					name_len >= 4 && 
+					de->d_name[name_len - 1] == 'v' && 
+					de->d_name[name_len - 2] == 's' && 
+					de->d_name[name_len - 3] == 'c' &&
+					de->d_name[name_len - 4] == '.'){
+						sort_file(new_name, dts, de->d_name, header, od);
+					} //end file is .csv
+					free(new_name);
+					exit(1);
+				} //end this is child process
+				else {
 					int eval = 0;
 					wait(&eval);
 					count += WEXITSTATUS(eval);
@@ -273,22 +270,31 @@ int recursive_scan_and_sort(char* dts, char* header, char* od, pid_t *pids, int 
 					*lock = LOCKED;
 					*size += 1;
 					*lock = UNLOCKED;
-					
 			     } //end this is parent process
 			} //end not a directory
-		     } //end while readdir not null
+		} //end while readdir not null
 		
-	  closedir(dir);
+		closedir(dir);
 	} //end if dir not null
 	return count;
 }
 
 int main(int argc, char* argv[]) {
-	if(argc < 3 || argc > 7 || argc % 2 == 0) {
-		perror("incorrect arguments");
-		fprintf(stdout, "incorrect arguments");
+	if(argc < 3){ 
+		perror("Not enough arguments: -c required\n");
+		fprintf(stdout, "Not enough arguments: -c required\n");
 		return 0;
 	}
+	else if(argc > 7) {
+		perror("Too many arguments.\n");
+		fprintf(stdout, "Too many arguments.\n");
+		return 0;
+	}
+	else if(argc % 2 == 0){
+		perror("Incorrect arguments: provide value after all flags.\n");
+		fprintf(stdout, "Incorrect arguments: provide value after all flags.\n");
+		return 0;
+	} 
 	int i = 1;
 	char *header_to_sort = NULL, *directory_to_search = NULL, *output_directory = NULL;
 	for(i = 1; i < argc; i++) {
@@ -296,19 +302,29 @@ int main(int argc, char* argv[]) {
 			i++;
 			header_to_sort = argv[i];
 		} 
-        else if(strcmp(argv[i], "-d") == 0) {
+		else if(strcmp(argv[i], "-d") == 0) {
 			i++;
 			directory_to_search = argv[i];
 		}
-        else if(strcmp(argv[i], "-o") == 0) {
+		else if(strcmp(argv[i], "-o") == 0) {
 			i++;
 			output_directory = argv[i];
 		}  
+		else {
+			fprintf(stderr, "Unrecognized flag %s: please use only -c and [-d, -o]\n", argv[i]);
+			fprintf(stdout, "Unrecognized flag %s: please use only -c and [-d, -o]\n", argv[i]);
+			return 0;
+		}
 	}
 	if(header_to_sort == NULL) {
-		perror("No header supplied as input.");
-		fprintf(stdout, "No header supplied as input.");
+		perror("No header supplied as input.\n");
+		fprintf(stdout, "No header supplied as input.\n");
 		return 0;
+	}
+	if(get_type(header_to_sort) == 'E') {
+		fprintf(stderr, "Error: %s is not a valid column header. Did not sort any files.\n", header_to_sort);
+		fprintf(stdout, "Error: %s is not a valid column header. Did not sort any files.\n", header_to_sort);
+		exit(0);
 	}
     //if output directory isn't an absolute path, we need to store the current path.
 	char * current_d = NULL;
