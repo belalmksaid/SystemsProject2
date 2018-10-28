@@ -146,6 +146,9 @@ int sort_file(char* file_path, char* dts, char* filename, char* header_to_sort, 
 	int no_of_cols = 0;
 	char** headers = split_by_comma(buff, &no_of_cols);
 	int cell_index = -1;
+	char* check_for_pre_sort = (char*)malloc(strlen(header_to_sort) + 10);
+	sprintf(check_for_pre_sort, "%s-sorted-", header_to_sort);
+	if(strstr(filename, check_for_pre_sort) != NULL) return 0;
 	int i;
 	for(i = 0; i < no_of_cols; i++) {
 		if(!strcmp(headers[i], header_to_sort)) {
