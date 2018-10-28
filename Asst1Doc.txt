@@ -8,7 +8,8 @@ The final sorted file will be named column_to_sort-sorted-original_name , where 
 Only a column with a legal movie value type will be sorted on. 
 
 Input: column_to_sort (string), optional path/to/directory/to/search (string) and optional path/to/output/directory (string)
-Output: List of PIDs of all processes forked in the process of the recursion and sorting, and the total number of processes that were run.
+Output: List of PIDs of all processes forked in the process of the recursion and sorting, and the total number of processes that were run (excluding main process 
+	because its existence is obvious).
 
 Data Structures:
     cell: contains the original data and converted data at a certain cell in the table (between commas in a single row of the csv file)
@@ -38,4 +39,5 @@ More Info:
     We used shared memory to improve the efficiency of the program, and to avoid the possibility of different processes trying to print to stdout at the same time. 
     For fatal errors, the error message was output to both STDOUT and STDERR so that there would be no ambiguity for the user as to why the program crashed 
 	(as Professor Francisco suggested in class).
-
+    If a file is encountered whose name starts with "[name_of_header]-sorted-", where [name_of_header] is the header being sorted on, a new file is not created
+	because we assume that the file is already sorted by the desired header. 
